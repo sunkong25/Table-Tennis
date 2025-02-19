@@ -1,5 +1,5 @@
 package com.prography.tabletennis.domain.user.enums;
 
-public enum Status {
+public enum UserStatus {
 	WAIT, ACTIVE, NON_ACTIVE
 }

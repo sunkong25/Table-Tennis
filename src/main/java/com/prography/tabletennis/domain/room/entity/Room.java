@@ -1,6 +1,7 @@
-package com.prography.tabletennis.domain.user.entity;
+package com.prography.tabletennis.domain.room.entity;
 
-import com.prography.tabletennis.domain.user.enums.UserStatus;
+import com.prography.tabletennis.domain.room.enums.RoomType;
+import com.prography.tabletennis.domain.room.enums.RoomStatus;
 import com.prography.tabletennis.global.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,7 +9,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,19 +20,20 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @Builder
-@Table(name = "\"user\"")
-public class User extends BaseEntity {
+public class Room extends BaseEntity {
 	@Id
 	@GeneratedValue
 	private int id;
 
-	private int fakerId;
+	private String title;
 
-	private String name;
+	private int host;
 
-	private String email;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "room_type")
+	private RoomType roomType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
-	private UserStatus userStatus;
+	private RoomStatus roomStatus;
 }
