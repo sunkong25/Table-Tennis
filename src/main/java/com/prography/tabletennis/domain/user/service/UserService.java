@@ -3,13 +3,19 @@ package com.prography.tabletennis.domain.user.service;
 import com.prography.tabletennis.domain.room.repository.RoomRepository;
 import com.prography.tabletennis.domain.user.dto.FakerUserResDto;
 import com.prography.tabletennis.domain.user.dto.InitReqDto;
+import com.prography.tabletennis.domain.user.dto.UserDto;
+import com.prography.tabletennis.domain.user.dto.UserListResDto;
 import com.prography.tabletennis.domain.user.entity.User;
 import com.prography.tabletennis.domain.user.enums.UserStatus;
 import com.prography.tabletennis.domain.user.repository.UserRepository;
-import com.prography.tabletennis.global.common.response.ApiResponseStatus;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -23,7 +29,7 @@ public class UserService {
 	private static final String FAKER_API_URL = "https://fakerapi.it/api/v1/users?_seed=%d&_quantity=%d&_locale=ko_KR";
 
 	@Transactional
-	public ApiResponseStatus init(InitReqDto request) {
+	public void init(InitReqDto request) {
 		deleteAllData();
 
 		String url = String.format(FAKER_API_URL, request.getSeed(), request.getQuantity());
@@ -45,7 +51,6 @@ public class UserService {
 				).collect(Collectors.toList());
 
 		userRepository.saveAll(users);
-		return ApiResponseStatus.SUCCESS;
 	}
 
 	private void deleteAllData() {
@@ -63,4 +68,29 @@ public class UserService {
 		}
 	}
 
+	public UserListResDto getUserList(int size, int page) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+		Page<User> userPage = userRepository.findAll(pageable);
+		List<User> users = userPage.getContent();
+
+		List<UserDto> userDtoList = users.stream()
+				.map(user -> {
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+					return UserDto.builder()
+							.id(user.getId())
+							.fakerId(user.getFakerId())
+							.name(user.getName())
+							.email(user.getEmail())
+							.status(String.valueOf(user.getUserStatus()))
+							.createdAt(user.getCreatedAt().format(formatter))
+							.updatedAt(user.getUpdatedAt().format(formatter))
+							.build();
+				}).toList();
+
+		return UserListResDto.builder()
+				.totalElements((int) userPage.getTotalElements())
+				.totalPages(userPage.getTotalPages())
+				.userList(userDtoList)
+				.build();
+	}
 }
