@@ -102,6 +102,7 @@ public class RoomService {
 				.build();
 	}
 
+	@Transactional
 	public void createParticipant(int roomId, UserReqDto request) {
 		Room findRoom = roomRepository.findRoomById(roomId)
 				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
@@ -148,6 +149,26 @@ public class RoomService {
 				.team(team)
 				.build();
 		userRoomRepository.save(userRoom);
+	}
+
+	@Transactional
+	public void deleteParticipant(int roomId, UserReqDto request) {
+		Room findRoom = roomRepository.findRoomById(roomId)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+		User findUser = userRepository.findById(request.getUserId());
+		UserRoom findUserRoom = userRoomRepository.findByUserAndRoom(findUser, findRoom)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+
+		if (!findRoom.getRoomStatus().equals(RoomStatus.WAIT)) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+
+		if (findRoom.getHost() == findUser.getId()) {
+			findRoom.update(RoomStatus.FINISH);
+			userRoomRepository.deleteUserRoomByRoom(findRoom);
+		} else {
+			userRoomRepository.deleteUserRoomByUser(findUser);
+		}
 	}
 }
 

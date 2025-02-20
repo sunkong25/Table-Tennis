@@ -23,7 +23,7 @@ public class RoomController {
 	@PostMapping("/room")
 	public ApiResponse<Void> createRoom(@RequestBody RoomReqDto request) {
 		roomService.createRoom(request);
-		return new ApiResponse(ApiResponseStatus.SUCCESS);
+		return new ApiResponse<>(ApiResponseStatus.SUCCESS);
 	}
 
 	@GetMapping("/room")
@@ -37,8 +37,16 @@ public class RoomController {
 	}
 
 	@PostMapping("/room/attention/{roomId}")
-	public ApiResponse<Void> createParticipant(@PathVariable(name = "roomId") int roomId, @RequestBody UserReqDto request) {
+	public ApiResponse<Void> createParticipant(@PathVariable(name = "roomId") int roomId,
+											   @RequestBody UserReqDto request) {
 		roomService.createParticipant(roomId, request);
+		return new ApiResponse<>(ApiResponseStatus.SUCCESS);
+	}
+
+	@PostMapping("/room/out/{roomId}")
+	public ApiResponse<Void> deleteParticipant(@PathVariable(name = "roomId") int roomId,
+											   @RequestBody UserReqDto request) {
+		roomService.deleteParticipant(roomId, request);
 		return new ApiResponse<>(ApiResponseStatus.SUCCESS);
 	}
 }

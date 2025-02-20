@@ -36,4 +36,8 @@ public class Room extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
 	private RoomStatus roomStatus;
+
+	public void update(RoomStatus roomStatus) {
+		this.roomStatus = roomStatus;
+	}
 }
