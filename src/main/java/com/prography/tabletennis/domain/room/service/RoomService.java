@@ -1,5 +1,7 @@
 package com.prography.tabletennis.domain.room.service;
 
+import com.prography.tabletennis.domain.room.dto.RoomDto;
+import com.prography.tabletennis.domain.room.dto.RoomListResDto;
 import com.prography.tabletennis.domain.room.dto.RoomReqDto;
 import com.prography.tabletennis.domain.room.entity.Room;
 import com.prography.tabletennis.domain.room.entity.UserRoom;
@@ -8,13 +10,21 @@ import com.prography.tabletennis.domain.room.enums.RoomType;
 import com.prography.tabletennis.domain.room.enums.Team;
 import com.prography.tabletennis.domain.room.repository.RoomRepository;
 import com.prography.tabletennis.domain.room.repository.UserRoomRepository;
+import com.prography.tabletennis.domain.user.dto.UserDto;
+import com.prography.tabletennis.domain.user.dto.UserListResDto;
 import com.prography.tabletennis.domain.user.entity.User;
 import com.prography.tabletennis.domain.user.enums.UserStatus;
 import com.prography.tabletennis.domain.user.repository.UserRepository;
 import com.prography.tabletennis.global.common.response.ApiException;
 import com.prography.tabletennis.global.common.response.ApiResponseStatus;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,5 +61,28 @@ public class RoomService {
 				.team(Team.RED)
 				.build();
 		userRoomRepository.save(userRoom);
+	}
+
+	public RoomListResDto getRoomList(int size, int page) {
+		Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+		Page<Room> roomPage = roomRepository.findAll(pageable);
+		List<Room> rooms = roomPage.getContent();
+
+		List<RoomDto> roomDtoList = rooms.stream()
+				.map(room -> {
+					return RoomDto.builder()
+							.id(room.getId())
+							.title(room.getTitle())
+							.hostId(room.getHost())
+							.roomType(String.valueOf(room.getRoomType()))
+							.status(String.valueOf(room.getRoomStatus()))
+							.build();
+				}).toList();
+
+		return RoomListResDto.builder()
+				.totalElements((int) roomPage.getTotalElements())
+				.totalPages(roomPage.getTotalPages())
+				.roomList(roomDtoList)
+				.build();
 	}
 }
