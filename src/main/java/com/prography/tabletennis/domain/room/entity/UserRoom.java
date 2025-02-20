@@ -31,7 +31,7 @@ public class UserRoom {
 	@JoinColumn(name = "room_id")
 	private Room room;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "user_id")
 	private User user;
 
