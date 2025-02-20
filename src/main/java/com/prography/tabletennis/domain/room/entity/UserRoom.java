@@ -27,11 +27,11 @@ public class UserRoom {
 	@GeneratedValue
 	private int id;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "room_id")
 	private Room room;
 
-	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
 	private User user;
 

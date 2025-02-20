@@ -1,6 +1,7 @@
 package com.prography.tabletennis.domain.user.service;
 
 import com.prography.tabletennis.domain.room.repository.RoomRepository;
+import com.prography.tabletennis.domain.room.repository.UserRoomRepository;
 import com.prography.tabletennis.domain.user.dto.FakerUserResDto;
 import com.prography.tabletennis.domain.user.dto.InitReqDto;
 import com.prography.tabletennis.domain.user.dto.UserDto;
@@ -25,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 public class UserService {
 	private final UserRepository userRepository;
 	private final RoomRepository roomRepository;
+	private final UserRoomRepository userRoomRepository;
 	private final RestTemplate restTemplate = new RestTemplate();
 	private static final String FAKER_API_URL = "https://fakerapi.it/api/v1/users?_seed=%d&_quantity=%d&_locale=ko_KR";
 
@@ -54,6 +56,7 @@ public class UserService {
 	}
 
 	private void deleteAllData() {
+		userRoomRepository.deleteAll();
 		userRepository.deleteAll();
 		roomRepository.deleteAll();
 	}
