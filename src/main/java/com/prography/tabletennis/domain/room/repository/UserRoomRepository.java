@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRoomRepository extends JpaRepository<UserRoom, Integer> {
 	Optional<UserRoom> findByUser(User user);
+
+	int countAllByRoom(Room room);
 }

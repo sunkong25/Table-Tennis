@@ -1,8 +1,10 @@
 package com.prography.tabletennis.domain.room.service;
 
+import com.prography.tabletennis.domain.room.dto.RoomDetailsResDto;
 import com.prography.tabletennis.domain.room.dto.RoomDto;
 import com.prography.tabletennis.domain.room.dto.RoomListResDto;
 import com.prography.tabletennis.domain.room.dto.RoomReqDto;
+import com.prography.tabletennis.domain.room.dto.UserReqDto;
 import com.prography.tabletennis.domain.room.entity.Room;
 import com.prography.tabletennis.domain.room.entity.UserRoom;
 import com.prography.tabletennis.domain.room.enums.RoomStatus;
@@ -85,4 +87,21 @@ public class RoomService {
 				.roomList(roomDtoList)
 				.build();
 	}
+
+	public RoomDetailsResDto getRoomDetails(int roomId) {
+		Room findRoom = roomRepository.findRoomById(roomId)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return RoomDetailsResDto.builder()
+				.id(findRoom.getId())
+				.title(findRoom.getTitle())
+				.hostId(findRoom.getHost())
+				.roomType(String.valueOf(findRoom.getRoomType()))
+				.status(String.valueOf(findRoom.getRoomStatus()))
+				.createdAt(findRoom.getCreatedAt().format(formatter))
+				.updatedAt(findRoom.getUpdatedAt().format(formatter))
+				.build();
+	}
 }
+
