@@ -12,8 +12,6 @@ import com.prography.tabletennis.domain.room.enums.RoomType;
 import com.prography.tabletennis.domain.room.enums.Team;
 import com.prography.tabletennis.domain.room.repository.RoomRepository;
 import com.prography.tabletennis.domain.room.repository.UserRoomRepository;
-import com.prography.tabletennis.domain.user.dto.UserDto;
-import com.prography.tabletennis.domain.user.dto.UserListResDto;
 import com.prography.tabletennis.domain.user.entity.User;
 import com.prography.tabletennis.domain.user.enums.UserStatus;
 import com.prography.tabletennis.domain.user.repository.UserRepository;
@@ -102,6 +100,54 @@ public class RoomService {
 				.createdAt(findRoom.getCreatedAt().format(formatter))
 				.updatedAt(findRoom.getUpdatedAt().format(formatter))
 				.build();
+	}
+
+	public void createParticipant(int roomId, UserReqDto request) {
+		Room findRoom = roomRepository.findRoomById(roomId)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+		User findUser = userRepository.findById(request.getUserId());
+		Optional<UserRoom> findUserRoom = userRoomRepository.findByUser(findUser);
+		int count = userRoomRepository.countAllByRoom(findRoom);
+
+		if (!findRoom.getRoomStatus().equals(RoomStatus.WAIT)) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+		if (!findUser.getUserStatus().equals(UserStatus.ACTIVE)) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+		if (findUserRoom.isPresent()) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+
+		Team team;
+		if (findRoom.getRoomType().equals(RoomType.SINGLE)) {
+			if (count < RoomType.SINGLE.getLimit()) {
+				if (count < RoomType.SINGLE.getLimit() / 2) {
+					team = Team.RED;
+				} else {
+					team = Team.BLUE;
+				}
+			} else {
+				throw new ApiException(ApiResponseStatus.ERROR);
+			}
+		} else {
+			if (count < RoomType.DOUBLE.getLimit()) {
+				if (count < RoomType.DOUBLE.getLimit() / 2) {
+					team = Team.RED;
+				} else {
+					team = Team.BLUE;
+				}
+			} else {
+				throw new ApiException(ApiResponseStatus.ERROR);
+			}
+		}
+
+		UserRoom userRoom = UserRoom.builder()
+				.room(findRoom)
+				.user(findUser)
+				.team(team)
+				.build();
+		userRoomRepository.save(userRoom);
 	}
 }
 

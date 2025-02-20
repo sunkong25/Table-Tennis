@@ -35,4 +35,10 @@ public class RoomController {
 	public ApiResponse<RoomDetailsResDto> getRoomDetails(@PathVariable(name = "roomId") int roomId) {
 		return new ApiResponse<>(ApiResponseStatus.SUCCESS, roomService.getRoomDetails(roomId));
 	}
+
+	@PostMapping("/room/attention/{roomId}")
+	public ApiResponse<Void> createParticipant(@PathVariable(name = "roomId") int roomId, @RequestBody UserReqDto request) {
+		roomService.createParticipant(roomId, request);
+		return new ApiResponse<>(ApiResponseStatus.SUCCESS);
+	}
 }
