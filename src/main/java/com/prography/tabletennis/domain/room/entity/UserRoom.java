@@ -2,7 +2,7 @@ package com.prography.tabletennis.domain.room.entity;
 
 import com.prography.tabletennis.domain.room.enums.Team;
 import com.prography.tabletennis.domain.user.entity.User;
-import jakarta.persistence.Column;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,7 +27,7 @@ public class UserRoom {
 	@GeneratedValue
 	private int id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "room_id")
 	private Room room;
 
