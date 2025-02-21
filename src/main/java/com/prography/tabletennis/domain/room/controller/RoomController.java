@@ -57,4 +57,11 @@ public class RoomController {
 		roomService.updateRoom(roomId, request);
 		return new ApiResponse<>(ApiResponseStatus.SUCCESS);
 	}
+
+	@PutMapping("/team/{roomId}")
+	public ApiResponse<Void> updateTeam(@PathVariable(name = "roomId") int roomId,
+										@RequestBody UserReqDto request) {
+		roomService.updateTeam(roomId, request);
+		return new ApiResponse<>(ApiResponseStatus.SUCCESS);
+	}
 }

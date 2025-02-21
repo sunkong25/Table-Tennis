@@ -123,9 +123,10 @@ public class RoomService {
 		}
 
 		Team team;
+		int teamCount = userRoomRepository.countAllByRoomAndTeam(findRoom, Team.RED);
 		if (findRoom.getRoomType().equals(RoomType.SINGLE)) {
 			if (count < RoomType.SINGLE.getLimit()) {
-				if (count < RoomType.SINGLE.getLimit() / 2) {
+				if (teamCount < RoomType.SINGLE.getLimit() / 2) {
 					team = Team.RED;
 				} else {
 					team = Team.BLUE;
@@ -135,7 +136,7 @@ public class RoomService {
 			}
 		} else {
 			if (count < RoomType.DOUBLE.getLimit()) {
-				if (count < RoomType.DOUBLE.getLimit() / 2) {
+				if (teamCount < RoomType.DOUBLE.getLimit() / 2) {
 					team = Team.RED;
 				} else {
 					team = Team.BLUE;
@@ -200,6 +201,52 @@ public class RoomService {
 			}
 		}
 		asyncService.updateStateAfterDelay(findRoom);
+	}
+
+	@Transactional
+	public void updateTeam(int roomId, UserReqDto request) {
+		Room findRoom = roomRepository.findRoomById(roomId)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+		User findUser = userRepository.findById(request.getUserId());
+		UserRoom findUserRoom = userRoomRepository.findByUserAndRoom(findUser, findRoom)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+		int count;
+
+		if (!findRoom.getRoomStatus().equals(RoomStatus.WAIT)) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+
+		if (findUserRoom.getTeam().equals(Team.RED)) {
+			count = userRoomRepository.countAllByRoomAndTeam(findRoom, Team.BLUE);
+			if (findRoom.getRoomType().equals(RoomType.SINGLE)) {
+				if (count < RoomType.SINGLE.getLimit() / 2) {
+					findUserRoom.update(Team.BLUE);
+				} else {
+					throw new ApiException(ApiResponseStatus.ERROR);
+				}
+			} else {
+				if (count < RoomType.DOUBLE.getLimit() / 2) {
+					findUserRoom.update(Team.BLUE);
+				} else {
+					throw new ApiException(ApiResponseStatus.ERROR);
+				}
+			}
+		} else {
+			count = userRoomRepository.countAllByRoomAndTeam(findRoom, Team.RED);
+			if (findRoom.getRoomType().equals(RoomType.SINGLE)) {
+				if (count < RoomType.SINGLE.getLimit() / 2) {
+					findUserRoom.update(Team.RED);
+				} else {
+					throw new ApiException(ApiResponseStatus.ERROR);
+				}
+			} else {
+				if (count < RoomType.DOUBLE.getLimit() / 2) {
+					findUserRoom.update(Team.RED);
+				} else {
+					throw new ApiException(ApiResponseStatus.ERROR);
+				}
+			}
+		}
 	}
 }
 

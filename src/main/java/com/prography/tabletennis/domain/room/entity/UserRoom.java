@@ -37,4 +37,8 @@ public class UserRoom {
 
 	@Enumerated(EnumType.STRING)
 	private Team team;
+
+	public void update(Team team) {
+		this.team = team;
+	}
 }

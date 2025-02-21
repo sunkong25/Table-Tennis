@@ -1,5 +1,6 @@
 package com.prography.tabletennis.domain.user.service;
 
+import com.prography.tabletennis.domain.room.dto.UserReqDto;
 import com.prography.tabletennis.domain.room.repository.RoomRepository;
 import com.prography.tabletennis.domain.room.repository.UserRoomRepository;
 import com.prography.tabletennis.domain.user.dto.FakerUserResDto;
