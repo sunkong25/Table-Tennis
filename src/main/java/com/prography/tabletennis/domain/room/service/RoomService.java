@@ -17,6 +17,7 @@ import com.prography.tabletennis.domain.user.enums.UserStatus;
 import com.prography.tabletennis.domain.user.repository.UserRepository;
 import com.prography.tabletennis.global.common.response.ApiException;
 import com.prography.tabletennis.global.common.response.ApiResponseStatus;
+import com.prography.tabletennis.global.common.service.AsyncService;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,7 @@ public class RoomService {
 	private final UserRepository userRepository;
 	private final RoomRepository roomRepository;
 	private final UserRoomRepository userRoomRepository;
+	private final AsyncService asyncService;
 
 	@Transactional
 	public void createRoom(RoomReqDto request) {
@@ -169,6 +171,35 @@ public class RoomService {
 		} else {
 			userRoomRepository.deleteUserRoomByUser(findUser);
 		}
+	}
+
+	@Transactional
+	public void updateRoom(int roomId, UserReqDto request) {
+		Room findRoom = roomRepository.findRoomById(roomId)
+				.orElseThrow(() -> new ApiException(ApiResponseStatus.ERROR));
+		int count = userRoomRepository.countAllByRoom(findRoom);
+
+		if (findRoom.getHost() != request.getUserId()) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+		if (!findRoom.getRoomStatus().equals(RoomStatus.WAIT)) {
+			throw new ApiException(ApiResponseStatus.ERROR);
+		}
+
+		if (findRoom.getRoomType().equals(RoomType.SINGLE)) {
+			if (count == RoomType.SINGLE.getLimit()) {
+				findRoom.update(RoomStatus.PROGRESS);
+			} else {
+				throw new ApiException(ApiResponseStatus.ERROR);
+			}
+		} else {
+			if (count == RoomType.DOUBLE.getLimit()) {
+				findRoom.update(RoomStatus.PROGRESS);
+			} else {
+				throw new ApiException(ApiResponseStatus.ERROR);
+			}
+		}
+		asyncService.updateStateAfterDelay(findRoom);
 	}
 }
 
